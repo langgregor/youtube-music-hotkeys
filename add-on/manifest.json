@@ -1,33 +1,38 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name": "YouTube Music Hotkeys",
-    "version" : "1.9.0",
+    "version" : "3.0.0",
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "youtube-music-hotkeys@lidel.org"
+        }
+    },
     "description": "Use keyboard shortcuts to control YouTube Music",
     "homepage_url": "https://github.com/lidel/google-music-hotkeys",
-    "author": "Marcin Rataj",
+    "author": "lidel",
     "icons": {
         "128": "Play_music_triangle.png"
     },
 
     "permissions": [
-        "https://play.google.com/music/listen*",
-        "https://podcasts.google.com/*",
-        "https://music.youtube.com/*",
         "contextMenus",
-        "tabs"
+        "tabs",
+        "scripting"
+    ],
+
+    "host_permissions": [
+        "https://music.youtube.com/*"
     ],
 
     "background": {
-        "scripts": ["browser-polyfill.min.js", "background.js"]
+        "service_worker": "background.js"
     },
 
     "options_ui": {
-        "page": "options.html",
-        "browser_style": true
+        "page": "options.html"
     },
 
-    "browser_action": {
-        "browser_style": true,
+    "action": {
         "default_icon": {
             "128": "Play_music_triangle.png"
         }
@@ -60,11 +65,9 @@
     "content_scripts": [
         {
             "matches": [
-              "https://play.google.com/music/listen*",
-              "https://podcasts.google.com/*",
               "https://music.youtube.com/*"
             ],
-            "js": ["browser-polyfill.min.js", "autoplay.js"],
+            "js": ["autoplay.js"],
             "all_frames" : false,
             "run_at": "document_idle"
         }
