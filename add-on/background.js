@@ -5,13 +5,8 @@ const youtubeMusicPlayerUrl = 'https://music.youtube.com/*'
 const togglePlaybackCommand = 'toggle-playback'
 const previousSongCommand = 'previous-song'
 const nextSongCommand = 'next-song'
-
-async function openPlayer () {
-  await chrome.tabs.create({
-    pinned: true,
-    url: youtubeMusicPlayerUrl.replace('*', '')
-  })
-}
+const volumeUpCommand = 'volume-up'
+const volumeDownCommand = 'volume-down'
 
 function getActionName (command) {
   switch (command) {
@@ -21,6 +16,10 @@ function getActionName (command) {
       return 'rewind'
     case nextSongCommand:
       return 'forward'
+    case volumeUpCommand:
+      return 'volume-up'
+    case volumeDownCommand:
+      return 'volume-down'
   }
 }
 
@@ -35,11 +34,21 @@ function youTubeMusicScriptThatClicksOn (actionName) {
         return qs('.ytmusic-player-bar.next-button') || qs('.next-button')
       case 'play-pause':
         return qs('.ytmusic-player-bar.play-pause-button') || qs('.play-pause-button') || document.getElementById('play-button')
+      case 'volume-up':
+      case 'volume-down':
+        return qs('.ytmusic-player-bar.volume-slider') || qs('.volume-slider')
     }
   }
   const button = findButton(actionName)
   if (button) {
-    button.click()
+    if (actionName === 'volume-up' || actionName === 'volume-down') {
+      const volumeChange = actionName === 'volume-up' ? 5 : -5
+      const currentVolume = parseInt(button.value) || 0
+      button.value = Math.min(100, Math.max(0, currentVolume + volumeChange))
+      button.dispatchEvent(new Event('change', { bubbles: true }))
+    } else {
+      button.click()
+    }    
   } else {
     console.log('[YouTube Music Hotkeys] unable to find the play button, please report a bug at https://github.com/lidel/google-music-hotkeys/issues/new')
   }
@@ -50,7 +59,6 @@ async function executeCommand (command) {
   const ymTabs = await chrome.tabs.query({ url: youtubeMusicPlayerUrl })
 
   if (ymTabs.length === 0) {
-    openPlayer()
     return
   }
 
@@ -81,29 +89,8 @@ chrome.commands.onCommand.addListener(executeCommand)
 // listen for messages from content script
 chrome.runtime.onMessage.addListener(onRuntimeMessage)
 
-// regular click on chrome.action toggles playback
-chrome.action.onClicked.addListener(() => executeCommand('toggle-playback'))
-
 // context-click on chrome.action displays more options
 chrome.contextMenus.removeAll()
-
-chrome.contextMenus.create({
-  id: 'toggle-playback-menu-item',
-  title: 'Toggle Playback',
-  contexts: ['action']
-})
-
-chrome.contextMenus.create({
-  id: 'previous-song-menu-item',
-  title: 'Previous Song',
-  contexts: ['action']
-})
-
-chrome.contextMenus.create({
-  id: 'next-song-menu-item',
-  title: 'Next Song',
-  contexts: ['action']
-})
 
 chrome.contextMenus.create({
   id: 'open-preferences-menu-item',
@@ -114,15 +101,6 @@ chrome.contextMenus.create({
 // Handle context menu clicks
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   switch (info.menuItemId) {
-    case 'toggle-playback-menu-item':
-      executeCommand(togglePlaybackCommand)
-      break
-    case 'previous-song-menu-item':
-      executeCommand(previousSongCommand)
-      break
-    case 'next-song-menu-item':
-      executeCommand(nextSongCommand)
-      break
     case 'open-preferences-menu-item':
       chrome.runtime.openOptionsPage()
         .catch((err) => {

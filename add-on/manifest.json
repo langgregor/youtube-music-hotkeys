@@ -59,7 +59,21 @@
                 "windows": "Alt+Shift+0"
             },
 			"description": "Next Song"
-		}
+		},
+        "volume-up": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+ArrowUp",
+                "windows": "Alt+Shift+ArrowUp"
+            },
+            "description": "Volume Up"
+        },
+        "volume-down": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+ArrowDown",
+                "windows": "Alt+Shift+ArrowDown"
+            },
+            "description": "Volume Down"
+        }
 	},
 
     "content_scripts": [
