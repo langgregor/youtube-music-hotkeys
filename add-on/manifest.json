@@ -1,15 +1,10 @@
 {
     "manifest_version": 3,
-    "name": "YouTube Music Hotkeys",
-    "version" : "3.0.0",
-    "browser_specific_settings": {
-        "gecko": {
-            "id": "youtube-music-hotkeys@lidel.org"
-        }
-    },
+    "name": "YouTube Music Hotkeys Fork",
+    "version" : "3.0.1",
     "description": "Use keyboard shortcuts to control YouTube Music",
-    "homepage_url": "https://github.com/lidel/google-music-hotkeys",
-    "author": "lidel",
+    "homepage_url": "https://github.com/langgregor/youtube-music-hotkeys",
+    "author": "langgregor (forked from lidel's google-music-hotkeys)",
     "icons": {
         "128": "Play_music_triangle.png"
     },
@@ -40,38 +35,18 @@
 
 	"commands": {
 		"toggle-playback": {
-			"suggested_key": {
-                "default": "Ctrl+Shift+8",
-                "windows": "Alt+Shift+8"
-            },
 			"description": "Toggle Playback"
 		},
 		"previous-song": {
-			"suggested_key": {
-                "default": "Ctrl+Shift+9",
-                "windows": "Alt+Shift+9"
-            },
 			"description": "Previous Song"
 		},
 		"next-song": {
-			"suggested_key": {
-                "default": "Ctrl+Shift+0",
-                "windows": "Alt+Shift+0"
-            },
 			"description": "Next Song"
 		},
         "volume-up": {
-            "suggested_key": {
-                "default": "Ctrl+Shift+ArrowUp",
-                "windows": "Alt+Shift+ArrowUp"
-            },
             "description": "Volume Up"
         },
         "volume-down": {
-            "suggested_key": {
-                "default": "Ctrl+Shift+ArrowDown",
-                "windows": "Alt+Shift+ArrowDown"
-            },
             "description": "Volume Down"
         }
 	},

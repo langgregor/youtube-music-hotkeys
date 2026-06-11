@@ -1,57 +1,32 @@
 'use strict'
 /* eslint-env chrome, webextensions */
-
 const youtubeMusicPlayerUrl = 'https://music.youtube.com/*'
-const togglePlaybackCommand = 'toggle-playback'
-const previousSongCommand = 'previous-song'
-const nextSongCommand = 'next-song'
-const volumeUpCommand = 'volume-up'
-const volumeDownCommand = 'volume-down'
 
-function getActionName (command) {
-  switch (command) {
-    case togglePlaybackCommand:
-      return 'play-pause'
-    case previousSongCommand:
-      return 'rewind'
-    case nextSongCommand:
-      return 'forward'
-    case volumeUpCommand:
-      return 'volume-up'
-    case volumeDownCommand:
-      return 'volume-down'
-  }
-}
+async function youTubeMusicScriptThatClicksOn (actionName) {
+  const qs = (q) => document.querySelector(q)
 
-function youTubeMusicScriptThatClicksOn (actionName) {
-  // TODO: revisit when YouTube Music adds 'feeling lucky' on page without player
   const findButton = (action) => {
-    const qs = (q) => document.querySelector(q)
     switch (action) {
-      case 'rewind':
+      case 'previous-song':
         return qs('.ytmusic-player-bar.previous-button') || qs('.previous-button')
-      case 'forward':
+      case 'next-song':
         return qs('.ytmusic-player-bar.next-button') || qs('.next-button')
-      case 'play-pause':
+      case 'toggle-playback':
         return qs('.ytmusic-player-bar.play-pause-button') || qs('.play-pause-button') || document.getElementById('play-button')
-      case 'volume-up':
-      case 'volume-down':
-        return qs('.ytmusic-player-bar.volume-slider') || qs('.volume-slider')
     }
+  }  
+  
+  if (actionName === 'volume-up' || actionName === 'volume-down') {
+    const slider = document.querySelector('.ytmusic-player-bar.volume-slider')
+    const volumeChange = actionName === 'volume-up' ? 5 : -5
+    const currentVolume = parseInt(slider.getAttribute('value')) || 0
+    slider.setAttribute('value', Math.min(100, Math.max(0, currentVolume + volumeChange)))
+    slider.dispatchEvent(new CustomEvent('immediate-value-change', { bubbles: true }));
+    slider.dispatchEvent(new CustomEvent('value-change', { bubbles: true }));
+    return
   }
-  const button = findButton(actionName)
-  if (button) {
-    if (actionName === 'volume-up' || actionName === 'volume-down') {
-      const volumeChange = actionName === 'volume-up' ? 5 : -5
-      const currentVolume = parseInt(button.value) || 0
-      button.value = Math.min(100, Math.max(0, currentVolume + volumeChange))
-      button.dispatchEvent(new Event('change', { bubbles: true }))
-    } else {
-      button.click()
-    }    
-  } else {
-    console.log('[YouTube Music Hotkeys] unable to find the play button, please report a bug at https://github.com/lidel/google-music-hotkeys/issues/new')
-  }
+
+  findButton(actionName)?.click()
 }
 
 async function executeCommand (command) {
@@ -62,24 +37,21 @@ async function executeCommand (command) {
     return
   }
 
-  const actionName = getActionName(command)
-
   for (const tab of ymTabs) {
     chrome.scripting.executeScript({
       target: { tabId: tab.id },
       func: youTubeMusicScriptThatClicksOn,
-      args: [actionName]
+      args: [command]
     })
   }
 }
 
 async function onRuntimeMessage (request, sender) {
   console.log('[YouTube Music Hotkeys] onRuntimeMessage', request)
-  const actionName = getActionName(request.command)
   await chrome.scripting.executeScript({
     target: { tabId: sender.tab.id },
     func: youTubeMusicScriptThatClicksOn,
-    args: [actionName]
+    args: [request.command]
   })
 }
 
